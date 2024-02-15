@@ -25,7 +25,7 @@ classifiers = [
     "Topic :: Utilities",
     "Typing :: Typed",
 ]
-urls = {repository = "https://github.com/mlprt/griffe-inherited-method-crossrefs"}
+urls = {Repository = "https://github.com/mlprt/griffe-inherited-method-crossrefs"}
 dependencies = [
     "griffe>=0.38",
 ]

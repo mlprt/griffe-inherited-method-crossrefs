@@ -16,7 +16,7 @@ pip install griffe-inherited-method-crossrefs
 
 ## Usage
 
-To use this extension with Mkdocs and mkdocstrings, add the following to your `mkdocs.yml`:
+After installation, to use this extension with Mkdocs and mkdocstrings, add the following to your `mkdocs.yml`:
 
 ```yaml
 plugins:
