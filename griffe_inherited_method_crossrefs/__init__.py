@@ -21,6 +21,7 @@ def _inherited_method_crossrefs(obj: "Object") -> None:
                     _inherited_method_crossrefs(member)  # type: ignore[arg-type]
     if obj.is_class:
         for member in obj.inherited_members.values():
+            # Inherited members are always aliases, though?
             if member.is_alias and member.target.is_function: 
                 # I had tried to just replace `member.docstring`, but that 
                 # resulted in the parent docstring being altered as well. 
@@ -39,10 +40,21 @@ def _inherited_method_crossrefs(obj: "Object") -> None:
                 inherited_path = member.target.canonical_path
                 crossref_str = member.target.parent.canonical_path
                 new_member.docstring = Docstring(
-                    f"Inherited from [`{crossref_str}`][{inherited_path}]"
+                    f"Inherited from [`{crossref_str}`][{inherited_path}]."
                 )
+                
+                # Make sure properties, abstractmethods, etc. get labeled 
+                new_member.labels = member.target.labels
+                # This is a (hopefully temporary) hack since Griffe doesn't
+                # add "abstractproperty" to member labels. 
+                # 
+                # Also adds the label to the target member, since the preceding  
+                # line only assigns a reference to the new member.
+                if any(str(decorator.value) == "abstractproperty" 
+                       for decorator in member.target.decorators):
+                    new_member.labels.add("abstractproperty")
+                    
                 member.parent.set_member(member.name, new_member)
-
 
 class InheritedMethodCrossrefs(Extension):
     """Griffe extension for replacing docstrings of inherited methods with crossrefs."""
