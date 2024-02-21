@@ -37,12 +37,33 @@ def _inherited_method_crossrefs(obj: "Object") -> None:
                     returns=member.target.returns,
                     decorators=member.target.decorators,
                 )
-                inherited_path = member.target.canonical_path
-                crossref_str = member.target.parent.canonical_path
-                new_member.docstring = Docstring(
-                    f"Inherited from [`{crossref_str}`][{inherited_path}]."
-                )
                 
+                # Problems:
+                #  1) `canonical_path` includes private modules, so it doesn't 
+                #     reflect the usual import path of an object, if that object 
+                #     is imported from (say) `__init__.py` of the package. For 
+                #     now, we'll just reference the parent object's name without 
+                #     the full path.
+                #  2) While `member.target.path` appears to be correct 
+                #     when printed from within this function, if we use it as 
+                #     the crossref link, the docs end up linking to the wrong 
+                #     place sometimes. For example, if A is the parent of B and 
+                #     C, both of which inherit method `m` from A, then the 
+                #     "Inherited from" docstring from B may link to C. 
+                #     The first part of the crossref (the printed label) is 
+                #     not affected. This all suggests that the problem 
+                #     might be with the mkdocstrings handler, not Griffe.
+                #     For now, we link to the parent object, rather than the 
+                #     specific method of the parent. This seems to work.
+                
+                #crossref_path = member.target.path
+                crossref_path = member.target.parent.path
+                #crossref_str = member.target.parent.path
+                crossref_str = member.target.parent.name
+                new_member.docstring = Docstring(
+                    f"Inherited from [`{crossref_str}`][{crossref_path}]."
+                )
+
                 # Make sure properties, abstractmethods, etc. get labeled 
                 new_member.labels = member.target.labels
                 # This is a (hopefully temporary) hack since Griffe doesn't
