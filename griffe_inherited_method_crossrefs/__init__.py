@@ -4,7 +4,6 @@ Derived from [griffe-inherited-docstrings](https://github.com/mkdocstrings/griff
 """
 
 import contextlib
-import copy
 from typing import TYPE_CHECKING
 from griffe import AliasResolutionError, Extension, Docstring, Function
 
