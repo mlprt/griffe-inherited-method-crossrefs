@@ -33,3 +33,12 @@ requires      = ["hatchling"]
 
 [tool.hatch.build]
 include = ["griffe_inherited_method_crossrefs/*"]
+
+################################################################################
+## Yamlfix
+################################################################################
+[tool.yamlfix]
+line_length        = 100
+section_whitelines = 1
+sequence_style     = "block_style"
+whitelines         = 1
