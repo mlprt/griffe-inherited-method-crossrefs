@@ -3,9 +3,11 @@
 Derived from [griffe-inherited-docstrings](https://github.com/mkdocstrings/griffe-inherited-docstrings/blob/cf7cdd2ba000d3e40d5d13affc6c2bc1829ac92d/src/griffe_inherited_docstrings/extension.py).
 """
 
+from __future__ import annotations
+
 import contextlib
-from typing import TYPE_CHECKING
-from griffe import AliasResolutionError, Extension, Docstring, Function
+from typing import TYPE_CHECKING, Any
+from griffe import AliasResolutionError, Extension, Docstring, Function, GriffeLoader
 
 if TYPE_CHECKING:
     from griffe import Module, Object
@@ -81,6 +83,8 @@ def _inherited_method_crossrefs(obj: "Object") -> None:
 class InheritedMethodCrossrefs(Extension):
     """Griffe extension for replacing docstrings of inherited methods with crossrefs."""
 
-    def on_package_loaded(self, *, pkg: "Module") -> None:
+    def on_package_loaded(
+        self, *, pkg: Module, loader: GriffeLoader, **kwargs: Any
+    ) -> None:
         """Inherit docstrings from parent classes once the whole package is loaded."""
         _inherited_method_crossrefs(pkg)
