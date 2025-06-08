@@ -1,6 +1,22 @@
 #:schema https://json.schemastore.org/pyproject.json
 [project]
-authors = [{ email = "matt.l.laporte@gmail.com", name = "Matt Laporte" }]
+description = "Griffe extension to replace docstrings of inherited methods with cross-references to parent"
+name        = "griffe-inherited-method-crossrefs"
+
+keywords = ["documentation", "griffe", "mkdocs"]
+license  = "Apache-2.0"
+readme   = "README.md"
+version  = "0.0.1.4"
+
+authors = [
+  { name = "JP-Ellis", email = "josh@jpellis.me" },
+  { name = "Matt Laporte", email = "matt.l.laporte@gmail.com" },
+]
+maintainers = [
+  { name = "JP-Ellis", email = "josh@jpellis.me" },
+  { name = "Matt Laporte", email = "matt.l.laporte@gmail.com" },
+]
+
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",
@@ -9,7 +25,7 @@ classifiers = [
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python",
   "Topic :: Documentation",
@@ -17,20 +33,34 @@ classifiers = [
   "Topic :: Utilities",
   "Typing :: Typed",
 ]
-dependencies = ["griffe>=0.38"]
-description = "Griffe extension to replace docstrings of inherited methods with cross-references to parent"
-keywords = []
-license = { file = "LICENSE" }
-name = "griffe-inherited-method-crossrefs"
-readme = "README.md"
+
+# Dependencies of Pact Python should be specified using the broadest range
+# compatible version unless:
+#
+# - A specific feature is required in a new minor release
+# - A minor version address vulnerability which directly impacts Pact Python
 requires-python = ">=3.9"
-urls = { Repository = "https://github.com/mlprt/griffe-inherited-method-crossrefs" }
-version = "0.0.1.4"
+
+dependencies = ["griffe>=0.38"]
+
+
+  [project.urls]
+  "Bug Tracker" = "https://github.com/mlprt/griffe-inherited-method-crossrefs/issues"
+  Changelog     = "https://github.com/mlprt/griffe-inherited-method-crossrefs/blob/main/CHANGELOG.md"
+  Homepage      = "https://github.com/mlprt/griffe-inherited-method-crossrefs"
+  Repository    = "https://github.com/mlprt/griffe-inherited-method-crossrefs"
+
+  [project.optional-dependencies]
+  # Linting and formatting tools use a more narrow specification to ensure
+  # developer consistency. All other dependencies are as above.
 
 [build-system]
 build-backend = "hatchling.build"
 requires      = ["hatchling"]
 
+################################################################################
+## Hatch Configuration
+################################################################################
 [tool.hatch.build]
 include = ["griffe_inherited_method_crossrefs/*"]
 
