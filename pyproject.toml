@@ -34,11 +34,11 @@ classifiers = [
   "Typing :: Typed",
 ]
 
-# Dependencies of Pact Python should be specified using the broadest range
+# Dependencies should be specified using the broadest range
 # compatible version unless:
 #
 # - A specific feature is required in a new minor release
-# - A minor version address vulnerability which directly impacts Pact Python
+# - A minor version address vulnerability which directly impacts this package
 requires-python = ">=3.9"
 
 dependencies = ["griffe>=0.38"]
