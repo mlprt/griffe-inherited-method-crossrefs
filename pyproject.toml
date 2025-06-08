@@ -53,6 +53,13 @@ dependencies = ["griffe>=0.38"]
   [project.optional-dependencies]
   # Linting and formatting tools use a more narrow specification to ensure
   # developer consistency. All other dependencies are as above.
+  devel = [
+    "griffe-inherited-method-crossrefs[devel-test]",
+    "griffe-inherited-method-crossrefs[devel-types]",
+    "ruff==0.11.13",
+  ]
+  devel-test = ["pytest~=8.0"]
+  devel-types = ["mypy==1.16.0"]
 
 [build-system]
 build-backend = "hatchling.build"
@@ -61,8 +68,45 @@ requires      = ["hatchling"]
 ################################################################################
 ## Hatch Configuration
 ################################################################################
-[tool.hatch.build]
-include = ["griffe_inherited_method_crossrefs/*"]
+[tool.hatch]
+
+  [tool.hatch.build]
+  include = ["griffe_inherited_method_crossrefs/*"]
+
+  ########################################
+  ## Hatch Environment Configuration
+  ########################################
+  [tool.hatch.envs]
+
+    # Install dev dependencies in the default environment to simplify the developer
+    # workflow.
+    [tool.hatch.envs.default]
+    features  = ["devel"]
+    installer = "uv"
+
+      [tool.hatch.envs.default.scripts]
+      all        = ["format", "lint", "test", "typecheck"]
+      docs       = "mkdocs serve {args}"
+      docs-build = "mkdocs build {args}"
+      format     = "ruff format {args}"
+      lint       = "ruff check --show-fixes {args}"
+      test       = "pytest tests/ {args}"
+
+      typecheck = [
+        "typecheck-src {args}",
+        # "typecheck-tests {args}"  # no tests yet
+      ]
+      typecheck-src = "mypy src {args}"
+      typecheck-tests = "mypy tests {args}"
+
+    # Test environment for running unit tests. This automatically tests against all
+    # supported Python versions.
+    [tool.hatch.envs.test]
+    features  = ["devel-test"]
+    installer = "uv"
+
+      [[tool.hatch.envs.test.matrix]]
+      python = ["3.10", "3.11", "3.12", "3.13", "3.9"]
 
 ################################################################################
 ## Yamlfix

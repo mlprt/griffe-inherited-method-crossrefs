@@ -60,8 +60,20 @@ jobs:
       - name: Install Python
         run: uv python install ${{ env.STABLE_PYTHON_VERSION }}
 
+      - name: Install hatch
+        run: uv tool install hatch
+
       - name: Format
-        run: echo "Placeholder"
+        run: |
+          if ! hatch run format --check ; then
+            {
+              echo "## Formatting changes"
+              echo '```diff'
+              hatch run format --diff
+              echo '```'
+            } >>"$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
 
   lint:
     name: Lint
@@ -79,8 +91,11 @@ jobs:
       - name: Install Python
         run: uv python install ${{ env.STABLE_PYTHON_VERSION }}
 
-      - name: Format
-        run: echo "Placeholder"
+      - name: Install hatch
+        run: uv tool install hatch
+
+      - name: Lint
+        run: hatch run lint --output-format github
 
   spelling:
     name: Spell check
@@ -195,5 +210,31 @@ jobs:
       - name: Install Python
         run: uv python install ${{ env.STABLE_PYTHON_VERSION }}
 
-      - name: Format
-        run: echo "Placeholder"
+      - name: Install hatch
+        run: uv tool install hatch
+
+      - name: Typecheck
+        run: |-
+          while IFS=$'\n' read -r line || ! retval=$line; do
+            if ! echo "$line" | jq -e . 2>/dev/null 1>&2; then
+              continue
+            fi
+
+            file=$(echo "$line" | jq -r '.file')
+            line_number=$(echo "$line" | jq -r '.line')
+            column=$(echo "$line" | jq -r '.column')
+            message=$(echo "$line" | jq -r '.message')
+            code=$(echo "$line" | jq -r '.code')
+            severity=$(echo "$line" | jq -r '.severity')
+
+            if [ "$severity" == "error" ]; then
+              echo "::error file=$file,line=$line_number,col=$column,title=$code::$message"
+            else
+              echo "::notice file=$file,line=$line_number,col=$column,title=$code::$message"
+            fi
+          done < <(
+            hatch run typecheck --output json
+            printf '%s' "$?"
+          )
+
+          exit "$retval"
