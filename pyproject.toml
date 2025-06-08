@@ -3,10 +3,10 @@
 description = "Griffe extension to replace docstrings of inherited methods with cross-references to parent"
 name        = "griffe-inherited-method-crossrefs"
 
+dynamic  = ["version"]
 keywords = ["documentation", "griffe", "mkdocs"]
 license  = "Apache-2.0"
 readme   = "README.md"
-version  = "0.0.1.4"
 
 authors = [
   { name = "JP-Ellis", email = "josh@jpellis.me" },
@@ -61,21 +61,56 @@ dependencies = ["griffe>=0.38"]
   devel-test = ["pytest~=8.0"]
   devel-types = ["mypy==1.16.0"]
 
+################################################################################
+## Build System Configuration
+################################################################################
 [build-system]
 build-backend = "hatchling.build"
-requires      = ["hatchling"]
+requires      = ["hatch-vcs", "hatchling"]
 
-################################################################################
-## Hatch Configuration
-################################################################################
 [tool.hatch]
+  [tool.hatch.version]
+  raw-options = { version_scheme = "no-guess-dev" }
+  source      = "vcs"
+  tag-pattern = "griffe-inherited-method-crossrefs-(?P<version>v\\d+(?:\\.\\d+)*)$"
 
   [tool.hatch.build]
-  include = ["griffe_inherited_method_crossrefs/*"]
 
-  ########################################
-  ## Hatch Environment Configuration
-  ########################################
+    [tool.hatch.build.hooks.vcs]
+    version-file = "src/griffe_inherited_method_crossrefs/__version__.py"
+
+    [tool.hatch.build.targets.sdist]
+    include = [
+      # Metadata
+      "LICENSE",
+      "README.md",
+
+      # Source
+      "src/griffe_inherited_method_crossrefs/**/*.py",
+      "src/griffe_inherited_method_crossrefs/**/*.pyi",
+      "src/griffe_inherited_method_crossrefs/py.typed",
+
+      # Tests
+      "tests/**/*.py",
+      "tests/**/*.pyi",
+    ]
+
+    [tool.hatch.build.targets.wheel]
+    include = [
+      # Metadata
+      "LICENSE",
+      "README.md",
+
+      # Source
+      "src/griffe_inherited_method_crossrefs/**/*.py",
+      "src/griffe_inherited_method_crossrefs/**/*.pyi",
+      "src/griffe_inherited_method_crossrefs/py.typed",
+    ]
+    packages = ["src/griffe_inherited_method_crossrefs"]
+
+  ##############################################################################
+  ## Hatch Configuration
+  ##############################################################################
   [tool.hatch.envs]
 
     # Install dev dependencies in the default environment to simplify the developer
