@@ -6,11 +6,12 @@ Derived from [griffe-inherited-docstrings](https://github.com/mkdocstrings/griff
 from __future__ import annotations
 
 import contextlib
+import typing
 from typing import TYPE_CHECKING, Any
 from griffe import AliasResolutionError, Extension, Docstring, Function, GriffeLoader
 
 if TYPE_CHECKING:
-    from griffe import Module, Object
+    from griffe import Module, Object, Class
 
 
 def _inherited_method_crossrefs(obj: "Object") -> None:
@@ -23,6 +24,7 @@ def _inherited_method_crossrefs(obj: "Object") -> None:
         for member in obj.inherited_members.values():
             # Inherited members are always aliases, though?
             if member.is_alias and member.target.is_function:
+                target: Function = typing.cast(Function, member.target)
                 # I had tried to just replace `member.docstring`, but that
                 # resulted in the parent docstring being altered as well.
                 # I assume this is because `member` is an alias.
@@ -33,9 +35,9 @@ def _inherited_method_crossrefs(obj: "Object") -> None:
                 # member.
                 new_member = Function(
                     member.name,
-                    parameters=member.target.parameters,
-                    returns=member.target.returns,
-                    decorators=member.target.decorators,
+                    parameters=target.parameters,
+                    returns=target.returns,
+                    decorators=target.decorators,
                 )
 
                 # Problems:
@@ -56,16 +58,18 @@ def _inherited_method_crossrefs(obj: "Object") -> None:
                 #     For now, we link to the parent object, rather than the
                 #     specific method of the parent. This seems to work.
 
-                # crossref_path = member.target.path
-                crossref_path = member.target.parent.path
-                # crossref_str = member.target.parent.path
-                crossref_str = member.target.parent.name
+                if TYPE_CHECKING:
+                    assert isinstance(target.parent, Class)
+                # crossref_path = target.path
+                crossref_path = target.parent.path
+                # crossref_str = target.parent.path
+                crossref_str = target.parent.name
                 new_member.docstring = Docstring(
                     f"Inherited from [`{crossref_str}`][{crossref_path}]."
                 )
 
                 # Make sure properties, abstractmethods, etc. get labeled
-                new_member.labels = member.target.labels
+                new_member.labels = target.labels
                 # This is a (hopefully temporary) hack since Griffe doesn't
                 # add "abstractproperty" to member labels.
                 #
@@ -73,10 +77,12 @@ def _inherited_method_crossrefs(obj: "Object") -> None:
                 # line only assigns a reference to the new member.
                 if any(
                     str(decorator.value) == "abstractproperty"
-                    for decorator in member.target.decorators
+                    for decorator in target.decorators
                 ):
                     new_member.labels.add("abstractproperty")
 
+                if TYPE_CHECKING:
+                    assert isinstance(member, Class)
                 member.parent.set_member(member.name, new_member)
 
 
